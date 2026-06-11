@@ -40,8 +40,8 @@ jobs:
           
           # Commit and push changes
           cd profile-repo
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
+          git config --local user.email "Prudhvi-Raj1806@users.noreply.github.com"
+          git config --local user.name "Prudhvi-Raj1806"
           git add assets/daily-wisdom.svg
           
           if git diff --staged --quiet; then
