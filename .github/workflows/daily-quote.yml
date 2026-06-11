@@ -3,36 +3,50 @@ name: Daily Quote Update
 on:
   schedule:
     - cron: '0 0 * * *' # Runs every day at midnight UTC
-  workflow_dispatch: # Allows manual execution from GitHub UI
+  workflow_dispatch: # Allows manual execution
 
 jobs:
-  update-readme:
+  update-profile:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write # Required to push commits
 
     steps:
-      - name: Checkout repository
+      - name: Checkout daily-wisdom repository
         uses: actions/checkout@v4
+        with:
+          path: daily-wisdom
+
+      - name: Checkout profile repository
+        uses: actions/checkout@v4
+        with:
+          repository: Prudhvi-Raj1806/Prudhvi-Raj1806 # Replace with your GitHub username if different
+          token: ${{ secrets.PROFILE_PAT }} # Requires a Personal Access Token with repo scope
+          path: profile-repo
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
-      - name: Run update script
-        run: python update.py
-
-      - name: Commit and push changes
+      - name: Generate new SVG
         run: |
+          cd daily-wisdom
+          python update.py
+
+      - name: Copy SVG and commit to profile repo
+        run: |
+          # Copy generated SVG to profile repository
+          mkdir -p profile-repo/assets
+          cp daily-wisdom/assets/daily-wisdom.svg profile-repo/assets/
+          
+          # Commit and push changes
+          cd profile-repo
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add README.md assets/daily-wisdom.svg
+          git add assets/daily-wisdom.svg
           
-          # Only commit and push if there are changes
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "docs: update daily quote and banner"
+            git commit -m "docs: update daily wisdom banner"
             git push
           fi
